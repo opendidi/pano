@@ -1,0 +1,170 @@
+<div class="works-container">
+<div class="container container_works" style="margin-top: 0;">
+    <div class="row">
+        <div class="col-md-10">
+            <ol class="breadcrumb clear_padding_left">
+                <li><a href="/member/project?act=videos"><i class="icon icon-home"></i>&nbsp;720h环物</a></li>
+                <li class="active">{$ring_around.rname}</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row row_margin_bottom" style="margin-top: 0px;">
+        <div class="col-md-10 advanced-setting-block" style="padding-top:10px;padding-bottom:10px;">
+            <div class="row">
+                <div class="col-md-5">
+                    <img id="img_path" style="height:200px;" class="img-responsive" src="{if $ring_around.img_path}{$ring_around.img_path}{else}/static/images/default.png{/if}">
+                    <div class="col-md-12 row_margin_bottom" style="padding: 0">
+                        <!-- <input id="picUpload" name="file" type="file" class="file-loading"> -->
+                        <button type="button" id="workCover" data-imgtype="custom" data-usetype="workCover" data-modalid="#media_icon" class="btn btn-block">替换封面图</button>
+                        <!-- <span class="help-block">请选择或上传2比1的封面图片
+                        </strong> 支持格式: <strong class="text-warning">JPG / PNG / JPEG </strong></span> -->
+                    </div>
+                   <!--  <div id="errorMsgDiv" class="col-md-12 text-danger" style="padding: 0;display: none">
+                        <i class="icon icon-exclamation-sign"></i>
+                        <span id="errorMsg"></span>
+                    </div> -->
+
+                </div>
+                  <div class="col-md-5 col-md-offset-2">
+                    <img id="background" style="height:200px;" class="img-responsive" src="{if $ring_around.background}{$ring_around.background}{else}/static/images/default.png{/if}">
+                    <div class="col-md-12 row_margin_bottom" style="padding: 0">
+                        <!-- <input id="picUpload" name="file" type="file" class="file-loading"> -->
+                        <button type="button" id="img_background" data-imgtype="custom" data-usetype="workCover" data-modalid="#media_icon" class="btn btn-block">替换背景</button>
+                     <!--    <span class="help-block">请选择或上传2比1的封面图片
+                        </strong> 支持格式: <strong class="text-warning">JPG / PNG / JPEG </strong></span> -->
+                    </div>
+                    <!-- <div id="errorMsgDiv" class="col-md-12 text-danger" style="padding: 0;display: none">
+                        <i class="icon icon-exclamation-sign"></i>
+                        <span id="errorMsg"></span>
+                    </div> -->
+
+                </div>
+                <div class="col-md-12">
+                    <form class="form-horizontal" method="post" role="form">
+                        <div class="form-group">
+
+                            <label class="col-md-2 control-label">720名称</label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="rname" name="rname" value="{$ring_around.rname}" onblur="update_ring('rname',this)" placeholder="请输入720名称" maxlength="100">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-2 control-label">720链接</label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="link" name="link" value="{$ring_around.link}" onblur="update_ring('link',this)" placeholder="请输入720链接地址" maxlength="100">
+                            </div>
+                        </div>
+                        
+                         <div class="form-group">
+                            <label class="col-md-2 control-label">obj文件</label>
+                               <div class="col-md-10">
+                                  <img src="/static/images/zip.png" width="30px">
+                                  <a id="obj" href="{$ring_around.obj}" style="margin:0px 10px;">
+                                     <i class="icon icon-download">下载查看</i>
+                                  </a>
+                                   <a href="javascript:;" id="update_obj">
+                                     <i class="icon icon-undo">替换文件</i>
+                                  </a>
+
+                              </div>
+                        </div>
+                         <div class="form-group">
+                            <label class="col-md-2 control-label">mtl文件</label>
+                               <div class="col-md-10">
+                                   <img src="/static/images/zip.png" width="30px">
+                                      <a id='mtl' href="{$ring_around.mtl}" style="margin:0px 10px;">
+                                         <i class="icon icon-download">下载查看</i>
+                                      </a>
+                                      <a href="javascript:;" id="update_mtl">
+                                         <i class="icon icon-undo">替换文件</i>
+                                      </a>
+
+                              </div>
+                        </div>
+                         <div class="form-group">
+                            <label class="col-md-2 control-label">音频资源</label>
+                               <div class="col-md-10">
+                                      <audio controls="controls" id="music" src="{$ring_around.music}" preload="none" ></audio>
+                                      <a href="javascript:;" id="musics">
+                                         <i class="icon icon-undo">替换文件</i>
+                                      </a>
+                              </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+      
+        </div>
+        <div class="col-md-2">
+            <div class="btn_fixed_works">
+                <!-- <button class="btn btn-block btn-primary" onclick="update_videos({$video.id})" type="button" id="save_btn">保存</button> -->
+                <button class="btn btn-block advanced-setting-btn" type="button" onclick="preview_ring_around({$ring_around.id})">预览</button>
+            </div>
+        </div>
+    </div>
+
+    <h3>图片列表
+        <!-- <small>共{$source|@count}张图片</small> -->
+    </h3>
+
+    <div class="row">
+        <div class="col-md-10 advanced-setting-block">
+            <button type="button" class="btn advanced-setting-btn btn-block" id="addimg"><i class="icon icon-plus"></i> 添加图片
+                    </button>
+            <div class="row" style="margin-top:5px;" id="source_wrap">
+                {foreach $ring_around_imgs as $k => $v}
+                <div class="col-md-4 " id="source_{$v.id}">
+                    <a class="card">
+                    <div class="top_cover"><span class="pull-right" onclick="delete_source({$v.id})"><i class="icon-trash"></i>删除</span></div>
+                    <img src="{$ring_around.host}/{$v.img_path}" style="height:200px;width:100%" >
+                    </a>
+                </div>
+                {/foreach}
+
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+</div>
+<div class="modal fade" id="media_icon" data-backdrop="static" data-keyboard="false" data-position="5%">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <ul id="myTab" class="nav nav-tabs">
+                    <!-- <li ><a href="#pic" data-toggle="tab" class="img_tab">图片</a></li> -->
+                    <li class="active"><a href="#upload" data-toggle="tab" id="upload_tab">上传</a></li>
+                    <div class="btn_confirm">
+                        <!-- <li>
+                            <button class="btn btn-primary confirm-choose" type="button" onclick="confirmChoseCover()">确定选择</button>
+                        </li> -->
+                        <li>
+                            <button class="btn" type="button" id="cancel_icon" data-dismiss="modal">取消
+                            </button>
+                        </li>
+                    </div>
+                </ul>
+                <div id="myTabContent" class="tab-content" style="height:410px;overflow: auto;">
+                    <!-- <div class="tab-pane fade clearfix active in" id="pic">
+                    </div> -->
+                    <div class="tab-pane fade clearfix active in" id="upload">
+                       <input id="imgUpload" name="file" type="file" class="">
+                        <p id="mediaTyPrompt">上传文件格式：mtl、obj、mp3、png、jpg格式。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+var cdn_host = "{$cdn_host}";
+var up_url = "{$_lang.up_url}";
+var prefix = "{$prefix}";
+var rid = "{$ring_around.id}";
+</script>
+<script src="/static/js/jquery.zclip.min.js"></script>
+<script src="/static/js/kr/ring_around_edit.js"></script>
+<!-- <script src="/static/js/kr/video_edit.js"></script> -->

@@ -1,0 +1,43 @@
+<style type="text/css">
+.art-box{
+margin-bottom:20px;padding:0 20px;background-color:#fff;
+border: 1px solid transparent;
+box-shadow: 0 1px 1px rgba(0,0,0,.05);
+border-color: #ebedf1;
+border-radius: 3px;
+}
+h2.art-tit{
+padding:15px 0 10px;margin:0;color:#333;font-weight:normal;border-bottom:2px solid #aaa;display:table;width:100%;text-align:center;
+}
+h2.art-tit .art-name{
+display:table-row;line-height:120%;
+}
+h2.art-tit .art-time{
+font-size:14px;color:#999;padding-top:10px;
+}
+.art-content{
+overflow:hidden;padding:15px 0;
+}
+.art-content img{
+max-width:100%;
+}
+</style>
+
+<div class="container">
+
+	<div class="art-box">
+	
+		<h2 class="art-tit">
+		<div class="art-name">{$a.title}</div>
+		<div class="art-time"><i class="icon icon-time"></i>更新：{$a.createtime}　　<i class="icon icon-eye-open"></i>浏览：<script src="/article?act=update_article_views&aid={$a.id}" type="text/javascript"></script></div>
+		</h2>
+	
+		<div class="clearfix"></div>
+	
+		<div class="art-content">
+		{$a.content}
+		</div>
+	
+	</div>
+
+</div>

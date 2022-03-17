@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="utf-8"?><krpano>
+
+	<!-- krpano 1.19.pr4 - Video-Interface Skin -->
+	<!-- skin settings -->
+	<skin_settings layout_width="100%"
+	               layout_maxwidth="814"
+	               controlbar_width="100%"
+	               controlbar_height="40"
+	               controlbar_offset="0"
+	               design_skin_images="vtourskin.png"
+	               design_bgcolor="0x333333"
+	               design_bgalpha="1"
+	               design_bgborder="0"
+	               design_bgroundedge="1"
+	               design_bgshadow="0 4 10 0x000000 0.3"
+	               design_thumbborder_bgborder="3 0xFFFFFF 1.0"
+	               design_thumbborder_padding="2"
+	               design_thumbborder_bgroundedge="0"
+	               design_text_css="color:#FFFFFF; font-family:Arial;font-size:14px;"
+	               design_text_shadow="1"
+	               />
+
+
+	<!-- save the url path of this xml file (the url value will be adjusted during xml parsing) -->
+	<videointerfacexmlpath url="./" />
+
+
+	<!-- mouse / touch / keyboard(button) control settings - http://krpano.com/docu/xml/#control -->
+	<control mouse="drag"
+	         touch="drag"
+	         zoomtocursor="false"
+	         zoomoutcursor="false"
+	         draginertia="0.1"
+	         dragfriction="0.9"
+	         movetoaccelerate="1.0"
+	         movetospeed="10.0"
+	         movetofriction="0.8"
+	         keybaccelerate="0.09"
+	         keybfriction="0.94"
+	         keybfovchange="0.25"
+	         mousefovchange="1.0"
+	         fovspeed="3.0"
+	         fovfriction="0.9"
+	         bouncinglimits="true"
+	         />
+
+	<!-- mouse cursors - http://krpano.com/docu/xml/#cursors -->
+	<cursors standard="default"
+	         dragging="move"
+	         moving="move"
+	         />
+
+
+	<!-- ensure stagescale 2x for mobile devices (regardless if mobilescale is 0.5 or 1.0) -->
+	<krpano stagescale="calc:stagescale * 2" if="stagescale LT 1.0" devices="mobile" />
+
+
+	<!-- include VR support - http://krpano.com/plugins/webvr/ -->
+	<include url="%SWFPATH%/plugins/webvr.xml" devices="html5" />
+
+	<!-- overwrite some settings from the webvr.xml for the skin integration -->
+	<plugin name="WebVR" keep="true" devices="html5"
+	        mobilevr_support="true"
+	        mobilevr_fake_support="true"
+	        onavailable="removelayer(webvr_enterbutton); set(layer[skin_btn_vr].enabled,true); tween(layer[skin_btn_vr].alpha, 1.0); webvr_onavailable();"
+	        onentervr="webvr_onentervr(); webvr_setup();"
+	        vr_cursor=""
+	        />
+
+	<!-- webvr button style (adjust to match skin style) -->
+	<style name="webvr_button_style"
+	       border="false"
+	       roundedge="calc:1.0"
+	       backgroundcolor="get:skin_settings.design_bgcolor" backgroundalpha="get:skin_settings.design_bgalpha"
+	       shadow="0.01" shadowrange="10.0" shadowangle="90.0" shadowcolor="0x30261B" shadowalpha="0.50"
+	       css="calc:skin_settings.design_text_css + ' color:#FFFFFF;font-size:' + 20*webvr_setup_scale*webvr_button_scale + 'px;'"
+	       />
+
+	<!-- show a 'rotate the device' info when the mobile device is in portrait orientation in VR mode -->
+	<layer name="webvr_rotate_to_landscape_request" keep="true" vr="true" devices="mobile"
+	       url="rotate_device.png" scale="0.5"
+	       align="top" edge="center" y="28%"
+	       autoalpha="true" alpha="0.0"
+	       enabled="false"
+	       />
+
+	<events name="webvr_events" keep="true" devices="html5"
+	        onresize.mobile="webvr_act_as_gyro_in_portrait_mode();"
+	        onviewchange=""
+	        />
+
+	<action name="webvr_setup">
+		if(webvr.isenabled,
+			webvr_act_as_gyro_in_portrait_mode(true);
+		  ,
+			tween(layer[webvr_rotate_to_landscape_request].alpha, 0.0, 0.0);
+			set(events[webvr_events].onviewchange, null);
+		  );
+	</action>
+
+	<action name="webvr_act_as_gyro_in_portrait_mode">
+		if(device.mobile AND webvr.isenabled,
+			div(aspect, stagewidth, stageheight);
+			if(aspect != lastaspect OR '%1' == 'true',
+				copy(lastaspect, aspect);
+				if(stagewidth GT stageheight,
+					<!-- landscape orientation - use stereo rendering and a direct/fast gyro sensor mode -->
+					set(display.stereo, true);
+					set(webvr.mobilevr_sensor_mode, 3);
+					webvr.update();
+					tween(layer[webvr_rotate_to_landscape_request].alpha, 0.0, 0.0);
+				  ,
+					<!-- portrait orientation - use normal rendering and a smoother/slower gyro sensor mode -->
+					set(display.stereo, false);
+					set(webvr.mobilevr_sensor_mode, 1);
+					webvr.update();
+					tween(layer[webvr_rotate_to_landscape_request].alpha, 1.0);
+					delayedcall(3.0, tween(layer[webvr_rotate_to_landscape_request].alpha, 0.0, 1.0); );
+				  );
+			  );
+		  ,
+			set(lastaspect, 0);
+		  );
+	</action>
+
+
+	<!-- gyro plugin -->
+	<plugin name="skin_gyro" keep="true" url="%SWFPATH%/plugins/gyro2.js" devices="html5.and.touch" enabled="true" onavailable="skin_have_gyro_support();" onenable="skin_gyro_enabled();" ondisable="skin_gyro_disabled();" />
+
+
+	<!-- skin styles -->
+
+	<!-- skin_base - the base skin image -->
+	<style name="skin_base" url="calc:videointerfacexmlpath.url + skin_settings.design_skin_images" />
+
+
+	<!-- skin_glow - button glowing (if additional ondown,onup,onout,over events are needed, this style provides ondown2,onup2,onover2,onout2 events) -->
+	<style name="skin_glow"
+	       ondown="copy(skin_lockglow,name); skin_buttonglow(get(name)); stopdelayedcall(skin_autohide); if(ondown2, ondown2() );"
+	       onover="if(skin_lockglow === null, copy(skin_lockglow,name); skin_buttonglow(get(name),0.3) ); if(onover2, onover2() );"
+	       onout="if(skin_lockglow === name AND !pressed, skin_buttonglow(null);delete(skin_lockglow); ); if(onout2, onout2() );"
+	       onup="if(onup2, onup2()); delayedcall(0, if(hovering AND enabled, skin_buttonglow(get(name),0.3); , skin_buttonglow(null);delete(skin_lockglow); ); );"
+	       />
+
+	<action name="skin_buttonglow">
+		if('%1' !== 'null',
+			set(strength,0.7);
+			if(%2 != null, set(strength,%2));
+			set(layer[skin_buttonglow].parent, %1);
+			set(layer[skin_buttonglow].visible, true);
+			tween(layer[skin_buttonglow].alpha, get(strength), 0.07);
+		  ,
+			tween(layer[skin_buttonglow].alpha, 0.0, 0.1, default,
+				set(layer[skin_buttonglow].parent, null);
+				set(layer[skin_buttonglow].visible, false);
+			  );
+		  );
+	</action>
+
+
+	<!-- skin events -->
+	<events name="skin_events" keep="true"
+	        onclick="skin_video_click_event();"
+	        onmousedown="skin_video_down_event();"
+	        onenterfullscreen.fullscreensupport="set(layer[skin_btn_fullscreen].crop, '64|576|64|64');"
+	        onexitfullscreen.fullscreensupport="set(layer[skin_btn_fullscreen].crop, '0|576|64|64');"
+	        />
+
+
+	<!-- skin layout -->
+
+	<style name="skintext" url="%SWFPATH%/plugins/textfield.swf" background="false" border="false" css="calc:skin_settings.design_text_css + ' text-align:center; font-style:normal;'" textshadow="get:skin_settings.design_text_shadow"/>
+	<style name="skintext_sel" css="calc:skin_settings.design_text_css + ' text-align:left;color:#fe5500;'"/>
+	<style name="settingsitem" type="container" align="lefttop" x="0" y="8" width="100%" height="25" bgcolor="0xFFFFFF" bgalpha="0.0" bgcapture="true" onover="set(bgalpha,0.25);" onout="set(bgalpha,0.0);" ondown.touch="onover();" onup.touch="onout();" children="false"/>
+
+
+	<layer name="skin_layer" keep="true" type="container" align="top" width="100%"  height="100%" maskchildren="true" xvisible="false" bgcapture="false" zorder="1">
+
+		<layer name="skin_control_bar" state="visible" type="container" autoalpha="true" align="bottom" width="get:skin_settings.controlbar_width" height="calc:skin_settings.controlbar_height" x="0" y="0" zorder="3" bgcolor="get:skin_settings.design_bgcolor" bgalpha="get:skin_settings.design_bgalpha" bgborder="get:skin_settings.design_bgborder" bgroundedge="get:skin_settings.design_bgroundedge" bgshadow="get:skin_settings.design_bgshadow" onover="stopdelayedcall(skin_autohide);">
+
+			<!-- left buttons - play/pause, volume -->
+			<layer name="skin_btn_playpause" style="skin_base|skin_glow" crop="0|640|64|64" align="left" x="5" y="0" scale="0.4" onclick="plugin[video].togglepause();" />
+
+			<layer name="skin_btn_volume" visible.no-desktop="false" style="skin_glow" type="container" width="32" height="32" align="left" x="40" y="3" bgcapture="true" children="false" onover2="stopdelayedcall(skin_autohide);stopdelayedcall(autoclose_volumectrl); skin_open_volumectrl();" onout2="if(layer[skin_volumectrl].pressed == false, delayedcall(autoclose_volumectrl, 0.5, skin_close_volumectrl()); );" onclick="if(layer[skin_volumectrl].alpha == 1.0, if(plugin[video].volume GT 0.0, set(plugin[video].volume,0.0), set(plugin[video].volume,1.0)); skin_volumectrl_update(); );">
+				<layer name="skin_btn_volume_icon" style="skin_base" crop="64|704|64|64" scale="0.4" align="lefttop" />
+			</layer>
+			
+			<!--播放时间-->
+			<layer name="skin_video_min_time" style="skintext" align="left" x.desktop="68" x.no-desktop="28"  y="0" width="38" html="0:00" />
+			
+			<!-- seek bar -->
+			<layer name="skin_video_seekbar_container" type="container" align="left" x.desktop="114" x.no-desktop="74" width.desktop="-277"  width.no-desktop="-224"  height="100%" bgcapture="true" ondown="stopdelayedcall(skin_autohide);skin_video_ondownseeking();" onup="js(get_time(get(plugin[video].time),get(plugin[video].totaltime),get(seekpos) ));">
+
+				<!--播放进度条-->
+				<layer name="skin_video_seekbar" type="container" bgcolor="0xFFFFFF" bgalpha="0.25" align="center" width.desktop="100%"
+				 width.no-desktop="100%" height="2" >
+					<layer name="skin_video_loadbar" type="container" bgcolor="0xffffff" bgalpha="0.5" align="left" width="0" height="2"/>
+					<layer name="skin_video_viewbar" type="container" bgcolor="0xfe5500" bgalpha="1.0" align="left" width="0" height="2"/>
+					<layer name="skin_video_seekpos" type="container" bgcolor="0xfe5500" bgalpha="1.0" align="left" edge="center" x="0" bgroundedge="8" width="10" height="10" />
+				</layer>
+				
+
+			</layer>
+			<!--总时间-->
+					
+			 <layer name="skin_video_total_time" style="skintext" align="right" x.desktop="120" x.no-desktop="113" y="0" width="38"  html="0:00" />	
+
+			<!-- right buttons - vr, settings, fullscreen -->
+			<layer name="skin_btn_vr" style="skin_base|skin_glow" crop="0|0|80|64" align="right" x.fullscreensupport="83" x.no-fullscreensupport="83" y="0" scale="0.4" onclick="webvr.enterVR();" enabled="false" alpha="0.25" />
+
+			
+			<layer name="skin_quality_settings" type="container" keep="true" align="right" edge="center" x.fullscreensupport="54" x.no-fullscreensupport="54" y="0" width="40" height="20" bgcolor="0x333333" bgroundedge="3" bgborder="1 0xfe5500 1.0" bgcapture="true" onclick="choosequality();">
+			 <layer name="skin_quality_text" url="%SWFPATH%/plugins/textfield.swf" background="false" css="color:#FFFFFF;color:#fe5500" enabled="false" align="center" html="标清"/>
+			</layer>
+			
+
+			<layer name="skin_btn_fullscreen" style="skin_base|skin_glow" crop="0|576|64|64" align="right" x="5" y="0" scale="0.4" onclick="switch(fullscreen);" />
+
+			
+			<!-- video-quality sub-menu -->
+			<layer name="skin_settings_quality" type="container" align="righttop" edge="rightbottom" width="70" parent="layer[skin_quality_settings]" height="0" autoalpha="true" alpha="0" x="20" y="-4" bgcapture="true" handcursor="false" bgcolor="get:skin_settings.design_bgcolor" bgalpha="get:skin_settings.design_bgalpha" bgborder="get:skin_settings.design_bgborder" bgroundedge="get:skin_settings.design_bgroundedge" bgshadow="get:skin_settings.design_bgshadow" >	
+			</layer>
+
+			<!-- sound volume control -->
+			<layer name="skin_volumectrl" type="container" align="lefttop" edge="leftbottom" width="32" height="110" x="40" y="-4" autoalpha="true" alpha="0.0" bgcolor="get:skin_settings.design_bgcolor" bgalpha="get:skin_settings.design_bgalpha" bgborder="get:skin_settings.design_bgborder" bgroundedge="get:skin_settings.design_bgroundedge" bgshadow="get:skin_settings.design_bgshadow" bgcapture="true" onover="stopdelayedcall(autoclose_volumectrl);" onout="if(pressed == false, delayedcall(autoclose_volumectrl, 0.5, skin_close_volumectrl()); );" ondown="stopdelayedcall(autoclose_volumectrl); skin_volumectrl_ondownchanging();" onup="onout();">
+				<layer name="skin_volumectrl_bar_container" type="container" align="lefttop" width="100%" height="100%">
+					<layer name="skin_volumectrl_bar" type="container" bgcolor="0xFFFFFF" bgalpha="0.25" align="center" width="2" height="-32">
+						<layer name="skin_volumectrl_pos" type="container" bgcolor="0xFFFFFF" bgalpha="1.0" align="top" edge="center" x="0" bgroundedge="8" width="10" height="10" />
+					</layer>
+				</layer>
+			</layer>
+
+		</layer>
+
+		<!-- glow effect layer -->
+		<layer name="skin_buttonglow" style="skin_base" crop="64|384|64|64" align="center" x="0" y="1" scale="1.0" alpha="0.0" visible="false" enabled="false" />
+
+		<!-- centered play/pause button -->
+		<layer name="skin_video_playpause" keep="true" style="skin_base|skin_glow" crop="0|640|64|64" scale="0.75" align="center" alpha="0.0" autoalpha="true" state="hidden" onclick="skin_video_playpause_click();" />
+
+		<!-- error window -->
+		<layer name="skin_error" visible="false" zorder="99" type="container" align="center" width="100" height="100" bgcapture="true" onclick="set(visible,false);" bgcolor="get:skin_settings.design_bgcolor" bgalpha="get:skin_settings.design_bgalpha" bgborder="get:skin_settings.design_bgborder" bgroundedge="get:skin_settings.design_bgroundedge" bgshadow="get:skin_settings.design_bgshadow">
+			<layer name="skin_error_msg" style="skintext" align="center" html="" enabled="false" padding="8 16" onautosized="copy(layer[skin_error].width, width); copy(layer[skin_error].height, height)" />
+		</layer>
+
+	</layer>
+
+
+	<action name="skin_video_setup">
+		if(skin_video_setup_done !== true,
+			set(skin_video_setup_done, true);
+
+			<!-- use the video events for getting state updates -->
+			set(plugin[video].onvideoready, skin_video_updatestate() );
+			set(plugin[video].onvideoplay, skin_video_updatestate(); 
+			if(skin_settings_opened !== true, skin_autohide(2.0)); );
+			set(plugin[video].onvideopaused, skin_video_updatestate(); skin_show_playpause(); );
+			set(plugin[video].onvideocomplete, skin_video_updatestate(); skin_show_playpause(); skin_show(); );
+			set(plugin[video].onerror, skin_video_error() );
+
+			<!-- when paused onstart, show the play button -->
+			if(plugin[video].pausedonstart,
+				set(layer[skin_video_playpause].state, 'visible');
+				set(layer[skin_video_playpause].enabled, true);
+				tween(layer[skin_video_playpause].alpha, 1.0);
+			  );
+
+			<!-- start the video-time update interval -->
+			setinterval(skin_video_seek_updates, 0.5, skin_video_updatetime() );
+		  );
+	</action>
+
+
+	<action name="skin_video_updatetime">
+		copy(t1, plugin[video].time);
+		copy(t2, plugin[video].totaltime);
+		if(%1 !== null, calc(t1, %1 * t2); );
+		div(t1_min, t1, 60);
+		mod(t1_sec, t1, 60);
+		Math.floor(t1_min);
+		Math.floor(t1_sec);
+		div(t2_min, t2, 60);
+		mod(t2_sec, t2, 60);
+		Math.floor(t2_min);
+		Math.floor(t2_sec);
+
+		<!-- calc(layer[skin_video_time].html, t1_min + ':' + (t1_sec LT 10 ? '0' : '') + t1_sec + ' / ' + t2_min + ':' + (t2_sec LT 10 ? '0' : '') + t2_sec); -->
+
+		calc(layer[skin_video_total_time].html,t2_min + ':' + (t2_sec LT 10 ? '0' : '') + t2_sec);
+		calc(layer[skin_video_min_time].html,t1_min + ':' + (t1_sec LT 10 ? '0' : '') + t1_sec);
+		calc(layer[skin_video_viewbar].width, (t1 / t2 * 100) + '%');
+		calc(layer[skin_video_seekpos].x, (t1 / t2 * 100) + '%');
+		calc(layer[skin_video_loadbar].width, (plugin[video].loadedbytes / plugin[video].totalbytes * 100) + '%');
+	</action>
+  
+
+	<action name="skin_video_ondownseeking">
+		asyncloop(pressed,
+			screentolayer(skin_video_seekbar, mouse.stagex,mouse.stagey, lx,ly);
+			calc(seekpos, lx / layer[skin_video_seekbar].pixelwidth);
+			clamp(seekpos, 0.0, 1.0);
+			skin_video_updatetime(seekpos);
+		  ,
+			plugin[video].seek(calc((seekpos * 100) + '%'));
+		  );
+		  
+		 
+	</action>
+
+
+	<action name="skin_video_updatestate">
+		calc(layer[skin_video_playpause].crop, plugin[video].ispaused ? '0|640|64|64' : '64|640|64|64');
+		copy(layer[skin_btn_playpause].crop, layer[skin_video_playpause].crop);
+	</action>
+
+
+	<action name="skin_video_error">
+		calc(layer[skin_error_msg].html, 'Error: ' + videoerror);
+		set(layer[skin_error].visible, true);
+	</action>
+
+
+	<action name="skin_video_click_event">
+		delayedcall(skin_click_detection, 0.25,
+			if(layer[skin_control_bar].state == 'hidden',
+				stopdelayedcall(skin_autohide_pp);
+				skin_show();
+				skin_show_playpause();
+			 <!--  ,
+				if(skin_settings_opened === true OR skin_volumectrl_opened == true,
+					skin_close_settings();
+					skin_close_volumectrl();
+				  ,
+					stopdelayedcall(skin_autohide_pp);
+					if(layer[skin_video_playpause].state == 'hidden',
+						skin_show_playpause();
+					  ,
+						skin_hide_playpause();
+						skin_autohide(0.0);
+					  );
+				  ); -->
+			  );
+		  );
+	</action>
+
+
+	<action name="skin_autohide">
+		delayedcall(skin_autohide, %1,
+			set(layer[skin_control_bar].state, 'hidden');
+			tween(layer[skin_control_bar].y, calc(-(skin_settings.controlbar_offset + skin_settings.controlbar_height)));
+			tween(layer[skin_control_bar].alpha, 0.0);
+		  );
+	</action>
+
+
+	<action name="skin_show">
+		stopdelayedcall(skin_autohide);
+		set(layer[skin_control_bar].state, 'visible');
+		tween(layer[skin_control_bar].y, get(skin_settings.controlbar_offset));
+		tween(layer[skin_control_bar].alpha, 1.0);
+	</action>
+
+
+	<action name="skin_show_playpause">
+		set(layer[skin_video_playpause].state, 'visible');
+		tween(layer[skin_video_playpause].alpha, 1.0);
+		delayedcall(skin_autohide_pp, 2.0,
+			set(layer[skin_video_playpause].state,'hidden');
+			tween(layer[skin_video_playpause].alpha, 0.0);
+		  );
+	</action>
+
+
+	<action name="skin_hide_playpause">
+		set(layer[skin_video_playpause].state, 'hidden');
+		tween(layer[skin_video_playpause].alpha, 0.0);
+	</action>
+
+
+	<action name="skin_video_down_event">
+		stopdelayedcall(skin_click_detection);
+	</action>
+
+
+	<action name="skin_video_playpause_click">
+		if(plugin[video].ispaused,
+			plugin[video].play();
+			set(layer[skin_video_playpause].state, 'hidden');
+			tween(layer[skin_video_playpause].alpha, 0.0);
+		  ,
+			plugin[video].pause();
+			set(layer[skin_video_playpause].state, 'visible');
+			tween(layer[skin_video_playpause].alpha, 1.0);
+			delayedcall(skin_autohide_pp, 2.0, set(layer[skin_video_playpause].state,'hidden'); tween(layer[skin_video_playpause].alpha, 0.0); );
+		  );
+	</action>
+
+	<action name="skin_open_volumectrl">
+		if(skin_volumectrl_opened !== true,
+			set(skin_volumectrl_opened, true);
+
+			tween(layer[skin_volumectrl].alpha, 1.0, 0.2);
+		  );
+	</action>
+
+
+	<action name="skin_close_volumectrl">
+		if(skin_volumectrl_opened === true,
+			set(skin_volumectrl_opened, false);
+
+			tween(layer[skin_volumectrl].alpha, 0.0, 0.2);
+		  );
+	</action>
+
+
+	<action name="skin_volumectrl_ondownchanging">
+		asyncloop(pressed,
+			screentolayer(skin_volumectrl_bar, mouse.stagex,mouse.stagey, lx,ly);
+			calc(volumectrl_pos, 1.0 - (ly / layer[skin_volumectrl_bar].pixelheight));
+			clamp(volumectrl_pos, 0.0, 1.0);
+			copy(plugin[video].volume, volumectrl_pos);
+			skin_volumectrl_update();
+		  );
+	</action>
+
+
+	<action name="skin_volumectrl_update">
+		calc(layer[skin_volumectrl_pos].y, ((1.0 - plugin[video].volume) * 100) + '%');
+		calc(layer[skin_btn_volume_icon].crop, plugin[video].volume GT 0.0 ? '64|704|64|64' : '64|704|40|64');
+		calc(layer[skin_btn_volume_icon].alpha, plugin[video].volume GT 0.0 ? 1.0 : 0.25);
+	</action>
+
+
+	<action name="skin_have_gyro_support">
+		set(layer[skin_gyro_container].enabled, true);
+		set(layer[skin_gyro_container].alpha, 1.0);
+		set(layer[skin_gyro_not].visible, false);
+		set(layer[skin_gyro_ctrl].visible, true);
+	</action>
+
+
+	<action name="skin_gyro_enabled">
+		tween(layer[skin_gyro_ctrl_i].x, 11);
+		tween(layer[skin_gyro_ctrl].alpha, 1.0);
+	</action>
+
+
+	<action name="skin_gyro_disabled">
+		tween(layer[skin_gyro_ctrl_i].x, -1);
+		tween(layer[skin_gyro_ctrl].alpha, 0.5);
+	</action>
+
+
+	<!-- context menu - http://krpano.com/docu/xml/#contextmenu -->
+	<contextmenu fullscreen="false" versioninfo="false">
+	    <item name="fs" caption="全屏" onclick="switch(fullscreen)"/>
+    </contextmenu>
+
+	<!-- video interface actions -->
+
+	<!-- videointerface_addsource (name, videourl, posterurl)
+		%1 - name
+		%2 - videourl
+		%3 - posterurl
+	-->
+	<action name="videointerface_addsource">
+		<!-- init/setup the video interface skin -->
+		skin_video_setup();
+
+		set(videosources['v%1'].sourcename, '%1');
+		set(videosources['v%1'].videourl, '%2');
+		set(videosources['v%1'].posterurl, '%3');
+
+		<!-- add layers to the quality sub-menu -->
+		calc(lname, 'skin_settings_q' + videosources.count);
+		addlayer(get(lname));
+		copy(ly, layer[get(lname)]);
+		ly.loadstyle(settingsitem);
+		calc(ly.y,  25*(videosources.count-1));
+		set(ly.parent, 'skin_settings_quality');
+		set(ly.onclick, videointerface_play('%1') );
+		calc(lname2, lname + 't');
+		addlayer(get(lname2));
+		copy(ly2, layer[get(lname2)]);
+		ly2.loadstyle(skintext);
+		copy(ly2.parent, lname);
+		set(ly2.align,'center');
+		set(ly2.html,'%1');
+		copy(videosources['v%1'].textelement, ly2);
+
+		calc(layer[skin_settings_quality].height, 25*videosources.count);
+		set(layer[skin_quality_text].html, %1);
+	</action>
+
+
+	<!-- videointerface_addsource
+		%1 - name
+		%2 - videourl
+		%3 - posterurl
+	-->
+	<action name="videointerface_play">
+		set(layer[skin_error].visible, false);
+		copy(vs, videosources['v%1']);
+		plugin[video].playvideo(get(vs.videourl), get(vs.posterurl), get(plugin[video].pausedonstart), get(plugin[video].time));
+		skin_volumectrl_update();
+		tween(layer[skin_settings_quality].alpha, 0, 0.2);
+		set(layer[skin_quality_text].html, %1);
+		for(set(i,0), i LT videosources.count, inc(i),
+			videosources[get(i)].textelement.loadstyle(calc(videosources[get(i)].sourcename == '%1' ? 'skintext_sel' : 'skintext'));
+		  );
+	</action>
+	
+	<action name="choosequality">
+		 copy(oalpha,layer[skin_settings_quality].alpha); 
+		 sub(oalpha,1);
+		 Math.abs(oalpha);
+		 tween(layer[skin_settings_quality].alpha, get(oalpha), 0.2);
+	</action>
+
+</krpano>

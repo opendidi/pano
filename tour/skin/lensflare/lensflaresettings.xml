@@ -1,0 +1,22 @@
+<krpano>
+	<lensflares name="obj">
+		<item name="flarka7151" ath="91" atv="-3" scene="scene_sunset" typ="blinkstyle4" dust_effect="false"/>
+		<item name="flarka6512" ath="88.54" atv="-20.51" scene="scene_001a" typ="blinkstyle1" dust_effect="false"/>
+		<item name="flarka14591" ath="-100.16" atv="-50.96" scene="scene_002a" typ="blinkstyle2" dust_effect="false"/>
+		<item name="flarka26735" ath="148.18" atv="-41.67" scene="scene_006a" typ="blinkstyle3" dust_effect="true"/>
+		<item name="flarka35462" ath="21.76" atv="-25.95" scene="scene_003a" typ="blinkstyle6" dust_effect="false"/>
+		<item name="flarka47239" ath="77.35" atv="-27.32" scene="scene_004a" typ="blinkstyle5" dust_effect="false"/>
+		<item name="flarka92223" ath="177.31" atv="-41.99" scene="scene_007a" typ="blinkstyle7" dust_effect="true"/>
+		<item name="flarka106717" ath="196.99" atv="-15.51" scene="scene_008a" typ="blinkstyle8" dust_effect="false"/>
+		<item name="flarka117558" ath="-172.26" atv="-15.57" scene="scene_009a" typ="blinkstyle9" dust_effect="false"/>
+		<item name="flarka11897" ath="103.14" atv="-4.86" scene="scene_1" typ="blinkstyle1" dust_effect="false"/>
+		<item name="flarka50737" ath="-98.69" atv="-51.89" scene="scene_2" typ="blinkstyle2" dust_effect="false"/>
+		<item name="flarka63633" ath="22.74" atv="-22.84" scene="scene_3" typ="blinkstyle4" dust_effect="false"/>
+		<item name="flarka72547" ath="66.46" atv="-9.92" scene="scene_4" typ="blinkstyle6" dust_effect="false"/>
+		<item name="flarka101904" ath="247.22" atv="-51.37" scene="scene_5" typ="blinkstyle3" dust_effect="false"/>
+		<item name="flarka163600" ath="176.60" atv="-30.49" scene="scene_6" typ="blinkstyle9" dust_effect="false"/>
+		<item name="flarka176490" ath="194.29" atv="-16.02" scene="scene_7" typ="blinkstyle8" dust_effect="false"/>
+		<item name="flarka200121" ath="562.21" atv="-16.13" scene="scene_8" typ="blinkstyle8" dust_effect="false"/>
+		<item name="flarka223321" ath="86.20" atv="-3.41" scene="scene_9" typ="blinkstyle4" dust_effect="false"/>
+	</lensflares>
+</krpano>

@@ -1,0 +1,1 @@
+<div class="btn_reward"  onClick="showRwardModal();" style="display:none"></div>

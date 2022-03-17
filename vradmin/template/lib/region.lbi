@@ -1,0 +1,112 @@
+<style>
+	.region_head{
+	}
+	.region_container{
+	}
+	.region_list{
+		list-style: none;
+	}
+	.region_list li{
+		float: left;
+	    margin:0 20px 10px 0;
+	    background-color: #0072C6;
+	    font-size: 14px;
+	    height: 25px;
+	    padding:0 5px 0 10px;
+	    line-height: 20px;
+	}
+	.region_list .rname{
+		color: #fff;
+		cursor: pointer;
+	}
+	.region_list input {
+		height: 23px;
+		padding:0 5px;
+		background-color: #fff;
+		width: 100px;
+		float: left;
+		border: 1px #0072c6 solid;
+	}
+	
+</style>
+<h3>
+	<input type="text" value="" id="region_add" maxlength="100">
+	<button class="btn" id="region_add_btn">新增区域</button>
+	<input class="btn btn6" onclick="history.go(-1)" value="返回" type="button">
+</h3>
+<div class="region_container">
+	<ul class="region_list">
+		{foreach $regions as $r}
+			<li>
+			<a class="rname" href="/{$_lang.admin_path}/?m=region&pid={$r.id}">{$r.name}</a>　
+			<a href="javascript:void(0);" class="edit" data-id="{$r.id}"><img src="/{$_lang.admin_path}/template/images/icon_edit.gif" /></a>
+			<a href="javascript:void(0);" class="del" data-id="{$r.id}"><img src="/{$_lang.admin_path}/template/images/icon_drop.gif" /></a>
+			</li>
+		{/foreach}
+	</ul>
+</div>
+<script>
+	var url = '/{$_lang.admin_path}/?m=region';
+	var pid = {$pid};
+	$(function(){
+		$("#region_add_btn").click(function(){
+			var name = $.trim($("#region_add").val());
+			if (name=="") {
+				alert("请输入区域名称");
+				return false;
+			}
+			$.post(url+'&act=add',{
+				'name':name,
+				'pid':pid
+			},function(res){
+				if (res.status==1) {
+				 	window.location.reload();
+				}else{
+					alert(res.msg);
+				}
+			},'json')
+		});
+		$(".region_list").on('click','.del',function(){
+			  var r=confirm("确定要删除吗？")
+			  if (r==true)
+			  {
+			  	var id = $(this).data('id');
+			   $.post(url+'&act=del',{
+			   				'id':id
+	   			},function(res){
+	   				if (res.status==1) {
+	   					window.location.reload();
+	   				}else{
+	   					alert(res.msg);
+	   				}
+	   			},'json');
+			  }
+			  
+			
+		});
+		$(".region_list").on('click','.edit',function(){
+			  
+			var region = $(this).prev('a').html();
+			var dataId = $(this).attr('data-id');
+			
+			$(this).parent().append("<input type='text' name='region' value="+region+">");
+			
+			$("input[name='region']").blur(function(){
+				region = $(this).val();
+				// alert(dataId+region);
+				$.post(url+'&act=edit',{
+			   				'id':dataId,
+			   				'name':region
+	   			},function(res){
+	   				if(res.status==1){
+	   					window.location.reload();
+	   				}else{
+	   					alert(res.msg);
+	   				}
+	   			},'json');
+
+				$(this).remove();
+			});
+		});
+	})
+</script>

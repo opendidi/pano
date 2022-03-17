@@ -1,0 +1,10 @@
+<script type="text/javascript">
+$(function(){
+	plugins_init_function.push(reward_init);
+})
+function reward_init(data){
+	 if (data.reward=="1") {
+            $(".btn_reward").show();
+     }
+}
+</script>

@@ -1,0 +1,354 @@
+{include file="{$_lang.moban}/library/member_paths.lbi"}
+<div class="container" style="margin-bottom: 20px;">
+	<div class="col-md-3">
+		<nav class="menu" data-toggle="menu" style="width: 200px">
+		  <a href="/member/redpack?act=add" class="btn btn-primary"><i class="icon-plus-sign"></i> 新建红包 </a>
+		  
+		  <ul class="nav nav-primary">
+		    	<li {if $act=='list'}class="atlas_active"{/if}><a href="/member/redpack"><span class="altlas_name">红包列表</span></a></li>
+		    	<li {if $act=='log'}class="atlas_active"{/if}><a href="/member/redpack?act=log"><span class="altlas_name">领取记录</span></a></li>
+		  </ul>
+		</nav>
+	</div>	
+
+	<div class="col-md-9">
+	{if $act=='list'}
+	<div class="col-md-3">
+ 		  <select name="status" class="form-control">
+ 		  	<option value="0">所有状态</option>
+ 		  	<option value="1">可领取</option>
+ 		  	<option value="2">已过期</option>
+ 		  </select>
+ 	</div>
+	<div class="col-md-3">
+		<input type="text" name="name" class="form-control"  placeholder="请输入红包名称">
+	</div>
+	<div class="col-md-1">
+		<button class="btn btn-info" onclick="get_list(1)">搜索</button>
+	</div>
+	<div style="clear: both;height: 15px;"></div>
+	<div class="list_wrap">
+		<div id="list_wrap_content""></div>
+		<div id="pager_wrap"></div>
+	</div>
+
+	<script type="text/javascript">
+	$(function(){
+		get_list(1,true);
+	})
+	function get_list(currentPage,reset){
+		var obj = alert_notice("页面加载中...",'success');
+		var status, name;
+		if(!reset){
+			status = $("select[name='status']").val();
+			name = $.trim($("input[name='name']").val());
+	   }else{
+	 		$("input[name='name']").val("");
+	   }
+	   $("#list_wrap_content").html("");
+	   $.post("/member/redpack",{	
+	   		"act":"list",
+	   		"ajax":1,
+	   		"page":currentPage,
+	   		"name":name,
+	   		"status":status,
+	   },function(res){
+	   		var res = eval("("+res+")");
+	   		var h = "", data=res.list;
+	   		if (data.length==0) {
+	   			h='<span style="width:100px;text-align:center;margin-left:40%;margin-top:50px;font-size:16px;display:inline-block">没有结果!</span>';
+				$("#pager_wrap").html("");
+	   		}else{
+		   		for (var i = 0; i <data.length; i++) {
+		   			var o = data[i];
+		   			h+='<div class="items">'+
+				  '<div class="item">'+
+				    '<div class="item-content">'+
+				    	'<div class="pull-left works_intro" >'+
+				    		'<span style="font-size:18px;color:red;font-weight:bold">'+o.name+'</span>&nbsp;&nbsp;【'+o.brief+'】'+
+				    		'<div class="text-muted">'+
+				    			'<span>截至：<font color="red">'+o.expire_time+'</font></span>'+
+				    			'&nbsp;&nbsp;'+
+				    			'<span>已发放：<font color="red">'+o.given+'</font></span>'+
+				    			'&nbsp;&nbsp;'+
+				    			'<span>剩余：<font color="red">'+o.remain+'</font></span>'+
+				    		'</div>'+
+				    	'</div>'+
+				    	'<div class="pull-right works_edit">';
+				    if(o.status==1){	
+				    	h +=	'<span><a onclick="redpack_cancel('+o.id+')">取消</a></span>';
+				    }
+				    	h +='<span><a onclick="redpack_delete('+o.id+')">删除</a></span>'+
+				    	'</div>'+
+				   ' </div>'+
+				 ' </div>'+
+				'</div>';
+		   		}
+	   			var pg = new Page('get_list',res.pageCount,res.currentPage);
+		   		$("#pager_wrap").html(pg.printHtml());
+	  	 	}
+	   		$("#list_wrap_content").html(h);
+	   		pageSize = res.pageSize;
+	   		obj.hide();
+	   })
+	}
+	function redpack_cancel(rpid){
+		bootbox.confirm({
+			message:"确定要取消该红包吗?",
+			buttons: {  
+	            confirm: {  
+	                label: '确认',  
+	                className: 'btn-primary'  
+	            },  
+	            cancel: {  
+	                label: '取消',  
+	                className: 'btn-default'  
+	            }  
+	    	},
+	    	title:"提示：",
+	    	callback:function(result) {
+	        	if(result){
+	    			alert_notice("等待执行...","success",'top',1000);
+					$.post("/member/redpack",{
+						'act':'cancel',
+						'rpid':rpid
+					},function(result){
+						result = eval("("+result+")");
+						if (result.status=='1') {
+							alert_notice("操作成功","success");
+							window.location.reload();
+						}else{
+							alert_notice(result.msg);
+						}
+				   })
+	        	}
+			}
+		});
+	}
+	function redpack_delete(rpid){
+		bootbox.confirm({
+			message:"确定要删除该红包吗?",
+			buttons: {  
+	            confirm: {  
+	                label: '确认',  
+	                className: 'btn-primary'  
+	            },  
+	            cancel: {  
+	                label: '取消',  
+	                className: 'btn-default'  
+	            }  
+	    	},
+	    	title:"提示：",
+	    	callback:function(result) {
+	        	if(result){
+	    			alert_notice("等待执行...","success",'top',1000);
+					$.post("/member/redpack",{
+						'act':'delete',
+						'rpid':rpid
+					},function(result){
+						result = eval("("+result+")");
+						if (result.status=='1') {
+							alert_notice("操作成功","success");
+							window.location.reload();
+						}else{
+							alert_notice(result.msg);
+						}
+				   })
+	        	}
+			}
+		});
+	}
+	</script>	
+	{/if}
+	{if $act=='add'}
+	<div style="background: #fff;border:1px solid #eee;padding:20px;">
+		<form action="/member/redpack" id="redpack_add" method="post">
+			<table width="100%" cellpadding="10px">
+				<tr>
+					<td colspan="2">当前余额 <font size="+1" color="red">{$ava_amount}</font> 元，使用场景红包，充值请联系管理员。</td>
+				</tr>
+				<tr>
+				    <td width="110px">红包名称</td>
+				    <td>
+				      <input type="text" name="name" class="form-control fl" style="width: 300px" /> 
+				    </td>
+			    </tr>
+				<tr>
+				    <td width="90px">红包类型</td>
+				    <td>
+				      <label><input name="type" type="radio" value="1" checked onclick="javascript:switch_redpack_type(1);"> 随机金额</label>&ensp;
+				      <label><input name="type" type="radio" value="2" onclick="javascript:switch_redpack_type(2);"> 固定金额</label>
+				    </td>
+			    </tr>
+			    <tr>
+				    <td width="110px">
+				    <span class="redpack-box redpack-box-2" style="display: none">单个</span>红包<span class="redpack-box redpack-box-1">总</span>金额
+				    </td>
+				    <td>
+				      <input type="text" name="amount" class="form-control fl" style="width:80px;font-size:24px;" /> 
+				      <div style="line-height: 32px;margin-left: 10px;" class="fl">元
+				      	 &ensp;&ensp;
+				      	 <span class="redpack-box redpack-box-2" style="display: none">微信规定单个红包金额不得低于1.00元</span>
+				      </div>
+				     
+				    </td>
+			    </tr>
+			    <tr class="redpack-box redpack-box-1">
+				    <td>单个红包范围</td>
+				    <td>
+				      <input type="text" name="range[]" class="form-control fl" style="width:80px;font-size:24px;" /> 
+				      <div class="fl" style="margin:0 10px;line-height:32px;">至</div>
+				      <input type="text" name="range[]" class="form-control fl" style="width:80px;font-size:24px;" /> 
+				      <div style="line-height: 32px;margin-left: 10px;" class="fl">元&ensp;&ensp;微信规定单个红包金额不得低于1.00元</div> 
+				    </td>
+			    </tr>
+			    <tr class="redpack-box redpack-box-2" style="display: none">
+				    <td>红包发放数量</td>
+				    <td>
+				      <input type="text" name="num" class="form-control" style="width:80px;" /> 				      
+				    </td>
+			    </tr>
+			    <tr>
+				    <td>抽中概率</td>
+				    <td>
+				      <input type="text" name="percent" class="fl form-control" style="width:80px;" /><div style="line-height: 32px;margin-left:5px" class="fl">%</div>			      
+				    </td>
+			    </tr>
+			    <tr>
+				    <td>红包过期时间</td>
+				    <td>
+				     <div class="col-md-4" style="padding-left: 0">
+				      <div class="input-group date form-date" data-date="" data-date-format="dd MM yyyy"  data-link-format="yyyy-mm-dd">
+				        <input class="form-control" size="16" name="expire" type="text" value="" readonly="" placeholder="过期时间" >
+				        <span class="input-group-addon"><span class="icon-remove"></span></span>
+				        <span class="input-group-addon"><span class="icon-calendar"></span></span>
+				      </div>
+					  </div>
+				      <div style="line-height: 32px;margin-left: 10px;" class="fl">红包过期后将不能被领取</div> 
+				    </td>
+			    </tr>
+			    <tr>
+			    	<td></td>
+			    	<td>
+			    		<input type="hidden" name="act" value="add" />
+			    		<input type="button" href="javascript:void(0);" id="sub_btn" onclick="javascript:ajaxFormSubmit('redpack_add');" class="btn btn-primary" value="添加红包" />
+			    	</td>
+			    </tr>
+			</table>
+		</form>
+		<div style="clear:both;"></div>
+	</div>
+	<script type="text/javascript">
+	function switch_redpack_type(type){
+		$(".redpack-box").hide();
+		$(".redpack-box-"+type).show();
+	}
+	</script>
+	{/if}
+	{if $act=='log'}
+	<div class="col-md-3">
+ 		  <select name="status" class="form-control">
+ 		  	<option value="0">所有状态</option>
+ 		  	<option value="1">领取成功</option>
+ 		  </select>
+ 	</div>
+	<div class="col-md-3">
+		<select name="rpid" class="form-control">
+ 		  	<option value="0">所有红包</option>
+ 		  	{foreach $redpack as $v}
+       		<option value="{$v.id}">{$v.name}</option>
+   		  	{/foreach}
+ 		  </select>
+	</div>
+	<div class="col-md-1">
+		<button class="btn btn-info" onclick="get_list(1)">搜索</button>
+	</div>
+	<div style="clear: both;height: 15px;"></div>
+	<div class="list_wrap">
+		<div id="list_wrap_content""></div>
+		<div id="pager_wrap"></div>
+	</div>
+
+	<script type="text/javascript">
+	$(function(){
+		get_list(1,true);
+	})
+	function get_list(currentPage,reset){
+		var obj = alert_notice("页面加载中...",'success');
+		var status, rpid;
+		if(!reset){
+			status = $("select[name='status']").val();
+			rpid = $.trim($("select[name='rpid']").val());
+	   }else{
+	 		//todo
+	   }
+	   $("#list_wrap_content").html("");
+	   $.post("/member/redpack",{	
+	   		"act":"log",
+	   		"ajax":1,
+	   		"page":currentPage,
+	   		"rpid":rpid,
+	   		"status":status,
+	   },function(res){
+	   		var res = eval("("+res+")");
+	   		var h = "", data=res.list;
+	   		if (data.length==0) {
+	   			h='<span style="width:100px;text-align:center;margin-left:40%;margin-top:50px;font-size:16px;display:inline-block">没有结果!</span>';
+				$("#pager_wrap").html("");
+	   		}else{
+		   		for (var i = 0; i <data.length; i++) {
+		   			var o = data[i];
+		   			h+='<div class="items">'+
+			  '<div class="item">'+
+			    '<div class="item-content">'+
+			    	'<div class="pull-left">'+
+			    		'<img src="'+o.head_img+'" width="60" height="60" class="img-rounded" >'+
+			    	'</div>'+
+			    	'<div class="pull-left works_intro" >'+
+			    		''+o.nickname+'【'+o.province+' '+o.city+'】'+
+			    		'<div class="text-muted">'+
+			    			'<span>'+o.create_time+'</span>'+
+			    		'</div>'+
+			    	'</div>'+
+			    	'<div class="pull-right works_edit" style="font-size:16px;">';
+			    if(o.status==1){
+			    	h += '<span>抽中 <font color="red" style="font-weight:bold">'+o.amount+'</font> 元</span>';
+			    }
+			    else{	
+			    	h += '<span>未抽中红包</span>';
+			    }
+			    	h += '</div>'+
+			   ' </div>'+
+			 ' </div>'+
+			'</div>';
+		   		}
+	   			var pg = new Page('get_list',res.pageCount,res.currentPage);
+		   		$("#pager_wrap").html(pg.printHtml());
+	  	 	}
+	   		$("#list_wrap_content").html(h);
+	   		pageSize = res.pageSize;
+	   		obj.hide();
+	   })
+	}
+	</script>	
+	{/if}
+
+
+	</div>
+</div>
+
+<script type="text/javascript">
+$(function(){
+	$(".form-date").datetimepicker({	
+	    language:  "zh-CN",
+	    weekStart: 1,
+	    todayBtn:  1,
+	    autoclose: 1,
+	    todayHighlight: 1,
+	    startView: 2,
+	    minView: 2,
+	    forceParse: 0,
+	    format: "yyyy-mm-dd"
+	});
+});	
+</script>

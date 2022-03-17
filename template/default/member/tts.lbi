@@ -1,0 +1,88 @@
+{include file="{$_lang.moban}/library/member_paths.lbi"}
+
+<div class="container">
+  <form action="/member/tts" method="post" id="tts_form" class="form-horizontal" style="background:#fff;border: 1px solid #eee;padding: 20px;">
+  <input type="hidden" name="id" value="{$c.pk_media_res}">
+	<div id="wrong_text"></div>
+  <div class="form-group">
+     <label for="name" class="col-sm-2 col-md-1 col-lg-1">名称</label>
+     <div class="col-md-6 col-sm-6">
+        <input type="text" name="media_name" id="media_name" class="form-control" placeholder="最长为32个字符" value="{$c.media_name}"/>
+     </div>
+   </div>
+
+    <div class="form-group">
+     <label for="name" class="col-sm-2 col-md-1 col-lg-1">文本</label>
+     <div class="col-md-6 col-sm-10">
+        <!-- <input type="text" name="content" id="content" maxlength="100" class="form-control" placeholder="卡券内容" value="{$c.content}"/> -->
+        <textarea name="content" id="content" cols="30" rows="10" class="form-control" placeholder="请输入1到600个字符的文本内容">{$c.content}</textarea>
+     </div>
+   </div>
+    <div class="form-group">
+     <label for="name" class="col-sm-2 col-md-1 col-lg-1">角色</label>
+     <div class="col-md-6 col-sm-6">
+	     <label class="radio-inline">
+	       <input type="radio" name="per" value="0" > 女声
+	     </label>
+	     <label class="radio-inline">
+	       <input type="radio" name="per" value="1" > 男声
+	     </label>
+     </div>
+   </div>
+    <div class="form-group">
+     <label for="name" class="col-sm-2 col-md-1 col-lg-1">语音</label>
+     <input type="hidden" name="media_path" id="media_path" value="{$c.media_path}">
+     <div class="col-md-4 col-sm-4" id="audioWrap" {if !$c.pk_media_res}style="display: none"{/if}>
+     	<audio src="{$c.absolutelocation}" controls="controls" id="ttsAudio"></audio>
+     </div>
+     <div class="col-md-2 col-sm-2">
+     	<input type="button" class="btn btn-link" value="立即生成" id="text2audio">
+     </div>
+   </div>
+   	<div class="col-md-offset-1 col-xs-offset-1">
+   		<button type="button"  onclick="ajaxFormSubmit('tts_form','tts_submit_btn');" id="tts_submit_btn" class="btn btn-primary">提交</button>
+   	</div>
+
+</form>
+</div>
+
+{literal}
+<script type="text/javascript">
+$(function(){
+	$("#text2audio").click(function(){
+		var content = $("#content").val();
+		if (content.length==0||content.length>600) {
+			alert_notice('请输入1到600个字符的文本内容');
+			return;
+		}
+		var per = $("input[name='per']:checked").val();
+		if(per==undefined){
+			alert_notice('请选择发音角色');
+			return;
+		}
+
+		$(this).val('生成中...');
+		$("#text2audio").attr("disabled","disabled");  
+
+		var location = $("#media_path").val();
+		$.post('/member/tts',{
+			'content':content,
+			'act':'text2audio',
+			'per':per,
+			'last_file':location
+		},function(data){
+			if (data.status==1) {
+				$("#media_path").val(data.location);
+				$("#ttsAudio").attr('src',data.absoultelocation);
+				$("#text2audio").val("重新生成"); 
+				$("#text2audio").removeAttr("disabled"); 
+				$("#audioWrap").show();
+			}else{
+				alert_notice(data.msg);
+			}
+		},'JSON')
+	})
+})
+
+</script>
+{/literal}

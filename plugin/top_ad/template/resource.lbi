@@ -1,0 +1,31 @@
+<style>
+/*	#topAdcontent{
+		background: rgba(204, 204, 204, 0.5);
+		height: 20px
+		 line-height: 20px;
+	    color: #353535;
+	    font-size: 16px;
+	}*/
+</style>
+
+<script>
+var ad_sys_default = "{$smarty.session.view.top_ad.brief}";
+$(function(){
+	plugins_init_function.push(top_ad_init);
+})
+function top_ad_init(data,settings){
+	var data = data.top_ad;
+	if(data&&data.show!="0"){
+		$(".vrshow_container_logo").css('top','45px');
+		$(".vrshow_container_1_min").css('top','45px');
+		if (data.adcontent&&data.adcontent.length>0) {
+			$("#top_ad").show();
+			$("#top_ad marquee").text(data.adcontent);
+		}else if(ad_sys_default.length>0){
+			$("#top_ad").show();
+			$("#top_ad marquee").text(ad_sys_default);
+		}
+    }
+}
+</script>
+

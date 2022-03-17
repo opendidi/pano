@@ -1,0 +1,110 @@
+<h3>
+	<a href="/{$_lang.admin_path}/?m=slide&act=detail" class="actionBtn add">添加焦点图</a>
+	<div style="height:36px"></div>
+</h3>
+{if $act=='list'}
+	<table  class="tableBasic" border="0" cellpadding="8" cellspacing="0"  width="100%">
+			<tr>
+				<th width="200">焦点图名称</th>
+				<th width="400">缩略图</th>
+				<th>跳转链接</th>
+				<th width="120">排序</th>
+				<th width="120">操作</th>
+			</tr>
+			{foreach $list as $v}
+			 <tr>
+				<td width="80">{$v.img_name}</td>
+				<td width="200"><a href="{$v.img_path}" target="_blank"><img src="{$v.img_path}" style="height:100px"/></a></td>
+				<td><a href="{$v.link}" target="_blank">{$v.link}</a></td>
+				<td>{$v.sort_order}</td>
+				<td width="120">
+				<a href="/{$_lang.admin_path}/?m=slide&act=detail&sid={$v.id}">编辑</a>　
+				<a href="javascript:;" onClick="javascript:delete_slide({$v.id});">删除</a>
+				</td>
+			</tr>
+			{/foreach}
+	</table>
+	<script type="text/javascript">
+	function delete_slide(sid){
+		if(confirm("确认删除该图片吗？")){
+			$.post("/{$_lang.admin_path}/?m=slide&act=delete",{literal}{sid:sid}{/literal},function(data){
+				var data = json_decode(data);
+				alert(data.msg);
+				if(data.status==1){
+					window.location.reload();
+				}
+			});
+		}
+	}
+	</script>
+{/if}
+{if $act=='detail'}
+    <form action="/{$_lang.admin_path}/?m=slide" id="slide_form" method="post" enctype="multipart/form-data">
+	<table  class="tableBasic" border="0" cellpadding="4" cellspacing="0"  width="100%">
+			<tr>
+				<th width="120"><i class="require-red">*</i> 图片名称</th>
+				<td><input type="text" name="img_name" value="{$slide.img_name}"></td>
+			 </tr>
+			 <tr>	
+				<th><i class="require-red">*</i> 上传图片</th>
+				<td>
+					<link rel="stylesheet" href="/static/kindeditor/themes/default/default.css" />
+		<script src="/static/kindeditor/kindeditor-min.js"></script>
+		<script>
+			KindEditor.ready(function(K) {
+				var uploadbutton = K.uploadbutton({
+					button : K('#uploadButton')[0],
+					fieldName : 'imgFile',
+					url : '/{$_lang.admin_path}/upload.php?act=slide',
+					afterUpload : function(data) {
+						if (data.error === 0) {
+						    $("#img_path").attr('src',data.url);
+							$("input[name='img_path']").val(data.url);
+						} else {
+							alert(data.message);
+						}
+					},
+					afterError : function(str) {
+						alert('自定义错误信息: ' + str);
+					}
+				});
+				uploadbutton.fileBox.change(function(e) {
+					uploadbutton.submit();
+				});
+			});
+		</script>
+		<img src="{if empty($slide.img_path)}/{$_lang.admin_path}/template/images/default.png{else}{$slide.img_path}{/if}" id="img_path" height="100px"/>
+		<div class="clear" style="height:5px"></div>
+		<input type="hidden" name="img_path" value="{$slide.img_path}" />
+		<input type="button" id="uploadButton" value="上传图片" />
+		图片建议尺寸1920*420
+				</td>
+			</tr>
+			<tr>	
+				<th>跳转链接</th>
+				<td>
+					<input type="text" name="link" value="{$slide.link}" style="width:350px"/>　
+					不跳转请保持为空
+				</td>
+			</tr>
+			<tr>	
+				<th><i class="require-red">*</i> 排序</th>
+				<td>
+					<input type="text" name="sort_order" value="{if !$slide}99{else}{$slide.sort_order}{/if}" style="width:60px"/> 　
+					排序越小越靠前
+				</td>
+			</tr>
+			<tr>
+				<th></th>
+				<td>
+					<div id="wrong_text" class="warning" style="display:none"></div>
+					<div class="clear"></div>
+					<input type="hidden" name="act" value="detail">
+					<input type="hidden" name="sid" value="{$slide.id}">
+					<input type="button" class="btn" value="提交" id="sub_btn" onclick="javascript:ajaxFormSubmit('slide_form','提交');">
+					<input class="btn" onClick="history.go(-1)" value="返回" type="button">
+				</td>
+			</tr>
+	</table>
+	</form>
+{/if}

@@ -1,0 +1,82 @@
+<krpano version="1.19" title="{$_lang.title}" debugmode="false">
+<!-- xml公用包含文件，设置皮肤，初始化场景，定义公用方法等 -->
+
+<security>
+    <crossdomainxml url="{$cdn_host}crossdomain.xml"/>
+    <allowdomain domain="*"/>
+</security>
+
+ 
+<include url="%SWFPATH%/skin/vtourskin.xml?v=012301" />
+<include url="%SWFPATH%/autorotate.xml" />
+<include url="%SWFPATH%/object.xml" />
+<contextmenu fullscreen="false" versioninfo="false">
+        <item name="logo" caption="{$_lang.title}" separator="true" onclick="openurl('{$_lang.host}')" devices="flash|webgl"/>
+</contextmenu>
+{foreach $plugins as $k => $v}
+{if $v.enable eq 1 AND $v.xml }
+<include url="%SWFPATH%/../plugin/{$k}/xml/{$v.xml}" />
+{/if}
+{/foreach}
+
+ <action name="startup" autorun="onstart">
+ 	 {if !empty($startscene)}
+        set(startscene,'{$startscene}');
+	{/if}
+ 	if(startscene === null OR !scene[get(startscene)],
+        copy(startscene,scene[0].name); );
+         if(device.fullscreensupport == true,js(showFullscreenBtn()););
+        if(device.mobile OR device.tablet,js(hideShareAndFootmarkBtn()););
+         loadscene(get(startscene), null, MERGE);
+		 set(layer[skin_loadingtext].html,'');	
+        if(startactions !== null, startactions() );
+ </action>
+	 {foreach $scenesRes as $v}
+  	 <scene name="scene_{$v.viewuuid}" title="{$v.sceneTitle}" {if $v.album}album="{$v.album}"{/if}   onstart="activatespot(90)" thumburl="{$v.imgPath}?{time()}" lat="" lng="" heading="">
+   
+		 <view hlookat="0" vlookat="0" fovtype="MFOV" fov="90" fovmin="5" fovmax="120" vlookatmin="-90" vlookatmax="90" limitview="lookat"/>
+		<preview url="{$v.prefix}/{$v.viewuuid}/preview.jpg" />
+
+		
+			{if $v.multi}
+				<image type="CUBE" multires="true" tilesize="512" if="!webvr.isenabled">
+		 			{foreach $v.levels as $lk => $lv}
+		 	 		<level tiledimagewidth="{$lv}" tiledimageheight="{$lv}">
+		 	 			<cube url="{$v.prefix}/{$v.viewuuid}/%s/l{$v.lcount-$lk}/%v/l{$v.lcount-$lk}_%s_%v_%h.jpg" />
+		 	 		</level>
+		 	 		{/foreach}
+	 	 		</image>
+	 	 		<image if="webvr.isenabled">
+		 	 		<cube url="{$v.prefix}/{$v.viewuuid}/vr/pano_%s.jpg" />
+		 	 	</image>
+ 	 		{else}
+ 	 			<image>
+	 	 			<cube url="{$v.prefix}/{$v.viewuuid}/pano_%s.jpg" />
+	 	 			<cube url="{$v.prefix}/{$v.viewuuid}/mobile/pano_%s.jpg" devices="mobile" />
+ 	 			</image>
+ 	 		{/if}
+
+ 	 	
+
+	</scene>   
+	{/foreach}
+
+{if $hotspot neq ''}    
+	{assign var="index" value="0"}
+	{foreach $hotspot as $v} 
+		{if $v.image neq ''} 
+			{foreach $v.image as $v1} 
+				<gallery name="{$v1.galleryName}" >
+					{foreach $v1.imgs as $v2} 
+				    	<img name="img_{$index}" url="{$v2.src}" />
+				  		{$index = $index+1}
+				    {/foreach}
+				  </gallery>
+		  	{/foreach}
+		 {/if}
+	{/foreach}
+{/if}		   
+	
+	
+	
+</krpano>

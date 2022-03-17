@@ -1,0 +1,11 @@
+html,body{ margin:0; padding:0; height:100%;overflow: hidden;}
+div,ul,li{ margin:0px; padding:0px; list-style:none;}
+body{font-family: Monospace;color: #fff;background-color: #dfdfdf;background-image: url("../images/background.jpg");background-position: center;background-size: cover;-moz-background-size:cover;-webkit-background-size:cover;-o-background-size:cover;margin: 0px;}
+#bodying,#ThreeJS {position:absolute;left:0px;top:0px;right:0px;bottom:0px;}
+.vague{filter:blur(6px); -moz-filter:blur(6px); -webkit-filter:blur(6px); -o-filter:blur(6px);}
+#music{position:fixed;cursor: pointer; left:0px; margin-top:20px; margin-left:2%; width:40px; height:40px;}
+#ani{position:fixed;cursor: pointer; left:0px; margin-top:70px; margin-left:2%; width:40px; height:40px;}
+#reset{position:fixed;cursor: pointer; left:0px; margin-top:120px; margin-left:2%; width:40px; height:40px;}
+#link{position:fixed;cursor: pointer; left:0px; margin-top:170px; margin-left:2%; width:40px; height:40px;}
+#link img{width:40px; height:40px;}
+img#loading { position: absolute; width:100px;  height:100px; left: 50%; top: 50%;margin-left: -50px;margin-top: -50px;display:none;}

@@ -1,0 +1,62 @@
+ <style>
+    #region_wrap .col-md-4{
+        margin-bottom: 10px;
+    }
+</style>
+<div class="row" id="region_wrap">
+	{for $i=1 to $maxNode}
+		<div class="col-md-4 col-xs-6 col-sm-4">
+          <select class="form-control" name="region[]" id="region_type_{$i}" data-type="{$i}">
+            <option value="-1">--请选择--</option>
+          </select>
+      </div>
+	{/for}
+</div>
+<script>
+	var maxNode = {$maxNode};
+	var regions = {$regions};
+	$(function(){
+		if (regions&&regions.region_1!=undefined&&regions.region_1!=0) {
+			$("#region_wrap .col-md-4 select").each(function(){
+				var type = $(this).data('type');
+				loadRegion(type,type==1?0:regions['region_'+(type-1)],false,regions['region_'+type]);
+			});
+		}else
+			loadRegion(1,0,false);
+
+		
+		$("#region_wrap .col-md-4 select").change(function(){
+			var type = $(this).data('type');
+			if (type<maxNode) {
+				loadRegion(type+1,$(this).val(),false);
+			}
+			for(var i = 2; i <=maxNode - type; i++) {
+				$("#region_type_"+(type+i)).html('<option value="-1">--请选择--</option>');
+			}
+		})
+	})
+	function loadRegion(type,pid,cover,s){
+		if(pid>=0){
+			$.post('/region.php',{
+			'pid':pid,
+			'act':'list'
+			},function(res){
+				var op = cover?"":'<option value="-1">--请选择--</option>';
+				for(var i=0 ; i<res.length ; i++){
+					var r = res[i];
+					op+='<option value="'+r.id+'" '+(s==r.id?"selected":"")+'>'+r.name+'</option>';
+				}
+				$("#region_type_"+type).html(op);
+
+			},'json');
+		}
+	}
+	function getRegions(){
+		var regions = {};
+		$("#region_wrap .col-md-4 select").each(function(){
+				var type = $(this).data('type');
+				regions['region_'+type] = $(this).val();
+		});
+		return regions;
+	}
+</script>

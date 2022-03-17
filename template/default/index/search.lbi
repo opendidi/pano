@@ -1,0 +1,30 @@
+<div class="container" style="padding:0">
+
+	<!--一个卡片列表行-->
+	<div class="row" style="margin:0">
+		 
+		<div class="items">
+			 {foreach $list.res as $k=>$v}
+			 <div class="item">		
+				<div class="item-content">
+					<div class="media pull-left"><a target="_blank" href="/tour/{$v.view_uuid}"><img src="{$v.thumb_path}" alt="" style="max-width:100px"></a></div>
+					<div class="item-heading">
+					  {if $v.recommend}<div class="pull-right label label-success">推荐</div>{/if}
+					  <h4><a target="_blank" href="/tour/{$v.view_uuid}">{$v.name}</a></h4>
+					</div>
+					{mb_substr(Common::sfilter($v.profile),0,120)}
+					<div class="item-footer">
+					  <a href="#" class="text-muted"><i class="icon-comments"></i> {$v.browsing_num}</a> &nbsp; 
+					  <span class="text-muted">{$v.create_time}</span>
+					</div>
+				</div>
+			  </div>
+			{/foreach}	         
+			<!--卡片列表循环结束-->	
+		</div>
+	
+	</div>
+	<!--一个卡片列表行结束-->
+	<div class="list-page">{include file="../library/pages.lbi"}</div>
+	
+</div>

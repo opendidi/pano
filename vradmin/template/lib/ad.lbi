@@ -1,0 +1,127 @@
+{if $act=='edit'}
+<style>
+  .postion_ad_check li{
+      list-style: none;
+      float: left;
+      margin-right: 20px;
+      line-height: 35px;
+  }
+</style>
+  <form action="/{$_lang.admin_path}/?m=ad" id="form" method="post" enctype="multipart/form-data">
+     <table width="100%" border="0" cellpadding="8" cellspacing="0" class="tableBasic">
+      <tr>
+       <th width="90" align="right">广告标题*</th>
+       <td>
+        <input type="text" name="title" value="{$ad.title}" size="80" class="inpMain" />
+       </td>
+      </tr>
+    
+	  <tr>
+       <th align="right">广告位置</th>
+       <td>
+         <ul class="postion_ad_check">
+            <li><input type="radio" name="postion" value="1" size="50" class="inpMain" {if empty($ad.postion)||$ad.postion==1}checked{/if} />首页顶部</li>
+            <li><input type="radio" name="postion" value="2" size="50" class="inpMain" {if $ad.postion==2}checked{/if} />首页底部</li>　
+            <li><input type="radio" name="postion" value="3" size="50" class="inpMain" {if $ad.postion==3}checked{/if} />全景摄影页</li>　
+            <li><input type="radio" name="postion" value="4" size="50" class="inpMain" {if $ad.postion==4}checked{/if} />全景视频页</li>　
+         </ul>
+      　
+	   </td>
+      </tr>
+	
+      <tr>
+       <th align="right">广告内容*</th>
+       <td>
+        <script type="text/javascript" src="/static/kindeditor/kindeditor-min.js"></script>
+        <script type="text/javascript" src="/static/kindeditor/lang/zh_CN.js"></script> 
+        <script type="text/javascript">
+        KindEditor.ready(function(K) {
+          editor = K.create('textarea[name="content"]', {
+            resizeType : 1, 
+            allowPreviewEmoticons : false,
+            allowMediaUpload : false,
+            allowFlashUpload : false,
+            allowFileManager : false,
+            {literal}
+            afterChange : function(){this.sync();},
+            afterBlur : function(){this.sync();},
+            {/literal}
+            uploadJson : '/{$_lang.admin_path}/upload.php?act=article',
+            cssPath : '/static/kindeditor/fontSize.css',
+            items : [
+              'fullscreen','source','code','|',
+              'formatblock','forecolor', 'hilitecolor','fontname', 'fontsize', '|', 
+              'bold', 'italic', 'underline','removeformat', '|', 
+              'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist','insertunorderedlist', 'link','|',
+              'flash', 'media','image','|',
+              'baidumap','preview'
+              ]
+          });
+        });
+        </script>
+        <textarea name="content" id="content" style="width:750px;height:400px">{$ad.content}</textarea>
+       </td>
+      </tr>
+      <tr>
+       <th></th>
+       <td>
+          <div id="wrong_text" class="warning" style="display:none"></div>
+          <div class="clear"></div>
+          <input type="hidden" name="act" value="edit">
+          <input type="hidden" name="id" value="{$ad.id}">
+          <input type="button" class="btn" value="提交" id="sub_btn" onclick="javascript:ajaxFormSubmit('form','提交');">
+          <input class="btn" onclick="history.go(-1)" value="返回" type="button">
+       </td>
+      </tr>
+     </table>
+    </form>
+{else}
+    <h3>
+		<a href="/{$_lang.admin_path}/?m=ad&act=edit" class="actionBtn add">添加广告</a>
+    <div style="height: 30px"></div>
+	</h3>
+
+ <div id="list">
+    <table width="100%" border="0" cellpadding="8" cellspacing="0" class="tableBasic">
+     <tr>
+      <th width="40" align="center">ID</th>
+      <th width="150" align="center">标题</th>
+      <th width="80" align="center">广告位置</th>
+      <th width="80" align="center">发布日期</th>
+      <th width="80" align="center">操作</th>
+     </tr>
+     {foreach $adList as $k=>$v}
+     <tr>
+      <td align="center">{$v.id}</td>
+      <td align="center">{$v.title}</td>
+       <td align="center">{$v.postion}</td>
+	     <td align="center">{$v.create_time}</td>
+      <td align="center">
+	    <a href="/{$_lang.admin_path}/?m=ad&act=edit&id={$v.id}">编辑</a>　
+	    <a href="javascript:;" onclick="javascript:delete_article({$v.id});">删除</a>
+	  </td>
+     </tr>
+    {/foreach}    
+    </table>
+    </div>
+    
+  </div>
+ {/if}
+
+<script type="text/javascript">
+function delete_article(aid){
+    if(confirm("确认删除该广告吗？")){
+      $.post("/{$_lang.admin_path}/?m=ad&act=delete",{literal}{aid:aid}{/literal},function(data){
+        var data = json_decode(data);
+        if(data.status==0){
+          alert(data.msg);
+          return false;
+        }
+        if(data.status==1){
+          alert('删除成功！');
+          window.location.reload();
+        }
+      });
+    }
+  }
+</script>
